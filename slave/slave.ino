@@ -14,8 +14,23 @@ int main (void)
     SPCR |= (1<<SPIE);                 // Enable SPI Interrupt
     SPCR |= (1<<SPE);                  // Enable SPI
 
-    sei();
+    DDRD |= (1 << DDD6);
+    // PD6 is now an output
 
+    OCR0A = 0;
+    // set PWM for 50% duty cycle
+
+
+    TCCR0A |= (1 << COM0A1);
+    // set none-inverting mode
+
+    TCCR0A |= (1 << WGM01) | (1 << WGM00);
+    // set fast PWM Mode
+
+    TCCR0B |= (1 << CS02) | (1 << CS00); 
+    // set prescaler to 1024 and starts PWM
+    sei();
+  
     while(1)
     {
         ;
@@ -25,7 +40,5 @@ int main (void)
 ISR (SPI_STC_vect)
 {
     data = SPDR;
-    if( data == 253) PORTD |= (1<<6);
-    if (data == 65) PORTD &=~(1<<6);
-    // do something with the received data
+    OCR0A = data;
 }
